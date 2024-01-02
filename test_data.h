@@ -6,4 +6,4 @@
 
 // Function prototypes
 
-float test_vector(std::vector<int> review_to_test, Training_data* model);
+double test_vector(std::vector<int> review_vector, Training_data* model);

@@ -79,7 +79,7 @@ namespace fs = std::filesystem;
 int main(int argc, char *argv[])
 {
 
-    std::string training_data_file = "training_data.bin";
+    std::string training_data_file = "training_data_checkpoint.bin";
     //Checking arguments and creating paths for readability if no arguments are given, reader is run on current directory.
     if (argc > 3) {
         return -1;
