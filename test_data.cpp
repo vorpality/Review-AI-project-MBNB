@@ -8,7 +8,7 @@ float test_vector(std::vector<int> review_vector, Training_data* model){
     //P(t | c)^x * ( 1-P(t|c) )^(1-x) calculation in log form to avoid underflow
     long double Px1 = log(Pc1);
     long double Px0 = log(Pc0);
-
+     
     for (int index = 0; index < review_vector.size(); ++index) {
         int word_exists = review_vector[index];
 
