@@ -38,11 +38,7 @@ int main(int argc, char *argv[])
         model = train(train_dir);
         std::cout << "Model has been trained. \nSaving training data to binary file.." << std::endl;
         save_training_data(model, training_data_file);
-        std::cout << "Model has been saved." << std::endl;
     }
-
-
-    std::cout << "Testing dataset.." << std::endl;
 
     std::vector<int> review;
     std::ofstream output("op.txt");

@@ -30,12 +30,12 @@ int create_map(std::filesystem::path directory_path, std::map<std::string, int>*
     std::uniform_real_distribution<> dis(0.0, 1.0);
 
     for (const auto& file : std::filesystem::directory_iterator(directory_path)) {
-        if (dis(gen) < SKIPPAGE) {
+        if (dis(gen) > SKIPPAGE) {
             all_files.push_back(file);
         }
     }
 
-    //available cpu threads
+    //Calculate available cpu threads
 
     const int total_threads = std::thread::hardware_concurrency();
     std::vector<std::thread> threads_vector;
@@ -61,6 +61,7 @@ int create_map(std::filesystem::path directory_path, std::map<std::string, int>*
 
 //function to use multithreading for faster training
 void process_files(const std::vector<std::filesystem::path>& local_files, int local_start, int local_end, std::map<std::string, int>* word_frequency_map) {
+    std::mutex map_mutex;
 
     for (int index = local_start; index < local_end; index++) {
 
@@ -79,7 +80,8 @@ void process_files(const std::vector<std::filesystem::path>& local_files, int lo
 Training_data* train(std::filesystem::path dir) {
     std::map<std::string, int>* negative_word_counts = new std::map<std::string, int>;
     std::map<std::string, int>* positive_word_counts = new std::map<std::string, int>;
-    std::cout << "\nTraining model.." << std::endl;
+    int max_vector_size;
+
     Training_data* data = new Training_data();
 
 
@@ -90,11 +92,14 @@ Training_data* train(std::filesystem::path dir) {
 
     int negative_file_count = create_map(negative, negative_word_counts);
     int positive_file_count = create_map(positive, positive_word_counts);
-
-    word_frequency_control((int)PN * negative_file_count, (int)PK * negative_file_count, negative_word_counts);
-    word_frequency_control((int)PN * positive_file_count, (int)PK * positive_file_count, positive_word_counts);
+    float n_negative = PN * negative_file_count;
+    float n_positive = PN * positive_file_count;
+    float k_negative = PK * negative_file_count;
+    float k_positive = PK * positive_file_count;
+    word_frequency_control(n_negative, k_negative, negative_word_counts);
+    word_frequency_control(n_positive, k_positive, positive_word_counts);
    
-    max_vector_size = calculate_unique_keys(positive_word_counts, negative_word_counts);
+    max_vector_size = calculate_unique_keys(positive_word_counts, negative_word_counts)-1;
     
     /* transforming dictionaries in indexed vectors for better alignment during testing.
         the "guide" map basically contains every word in positive/negative maps
@@ -109,7 +114,7 @@ Training_data* train(std::filesystem::path dir) {
     std::vector<float>* positive_word_probabilities = new std::vector<float>(max_vector_size);
     std::vector<float>* negative_word_probabilities = new std::vector<float>(max_vector_size);
 
-    int index = 1;
+    int index = 0;
     for (auto element = positive_word_counts->begin(); element != positive_word_counts->end(); element++) {
 
         std::string word = element->first;
@@ -130,7 +135,7 @@ Training_data* train(std::filesystem::path dir) {
         //if word already exists in guide, add it to the respective place
         if (word_index_guide->count(word) > 0) {
             int existing_index = (*word_index_guide)[word];
-            (*negative_word_probabilities)[existing_index] = (float)(word_count + 1 / (float)(negative_file_count +  2));
+            (*negative_word_probabilities)[existing_index] = (float)(word_count + 1) / (float)(negative_file_count +  2);
         }
         //adding new words
         else {

@@ -59,7 +59,7 @@ std::vector<int> file_to_vector(std::filesystem::path file_path, std::unordered_
     std::string path_string = file_path.string();
     std::ifstream file(file_path);
     std::string word;
-    std::vector<int> result(guide->size() + 1);
+    std::vector<int> result(guide->size());
     while (std::getline(file, word, ' ')) {
 
         //Modifies word the same way as in training data
