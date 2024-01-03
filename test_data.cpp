@@ -2,7 +2,7 @@
 
 
 
-    double test_vector(std::vector<int> review_vector, Training_data * model) {
+double test_vector(std::vector<int> review_vector, Training_data* model) {
 
     float Pc0 = (float)model->negative_file_count / (float)(model->positive_file_count + model->negative_file_count); //P(c=0)
     float Pc1 = (float)model->positive_file_count / (float)(model->positive_file_count + model->negative_file_count); //P(c=1)
@@ -36,3 +36,4 @@
         //negative if Px0 > Px1
         return Px1 - Px0;
     }
+}

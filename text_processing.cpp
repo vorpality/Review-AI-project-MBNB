@@ -26,7 +26,7 @@ void word_frequency_control(int n, int k, std::map<std::string, int>* word_frequ
 // Function to tokenize words and build word frequency dictionary
 void add_file_to_map(std::filesystem::path file_path, std::map<std::string, int>* word_frequency) {
     std::unordered_map<std::string, bool> unique_words;
-    std::string path_string = file_path.u8string();
+    std::string path_string = file_path.string();
     std::ifstream file(file_path);
     std::string word;
     while (std::getline(file, word, ' ')) {
@@ -56,7 +56,7 @@ void add_file_to_map(std::filesystem::path file_path, std::map<std::string, int>
 
 // Function to convert file words to a vector based on the guide
 std::vector<int> file_to_vector(std::filesystem::path file_path, std::unordered_map<std::string, int>* guide) {
-    std::string path_string = file_path.u8string();
+    std::string path_string = file_path.string();
     std::ifstream file(file_path);
     std::string word;
     std::vector<int> result(guide->size() + 1);

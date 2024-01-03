@@ -7,14 +7,12 @@
 #include <fstream>
 #include <regex>
 
+
 //Preprocess control.
 
 
 //words of, or less letter to be omitted
 const int MINIMUM_LETTERS = 3;
-
-
-
 
 
 // Function prototypes

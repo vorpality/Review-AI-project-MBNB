@@ -10,4 +10,5 @@ struct Training_data {
     std::vector<float>* negative_probability_vector;
     int positive_file_count;
     int negative_file_count;
+    double entropy;
 };

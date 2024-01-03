@@ -9,9 +9,9 @@ void save_training_data(const Training_data* data, const std::string& filename) 
     std::ofstream ofs(filename, std::ios::binary);
     if (ofs.is_open()) {
         // Serialize guide
-        size_t guideSize = data->guide->size();
+        size_t guideSize = data->word_index_guide->size();
         ofs.write(reinterpret_cast<const char*>(&guideSize), sizeof(size_t));
-        for (const auto& pair : *(data->guide)) {
+        for (const auto& pair : *(data->word_index_guide)) {
             size_t keySize = pair.first.size();
             ofs.write(reinterpret_cast<const char*>(&keySize), sizeof(size_t));
             ofs.write(pair.first.c_str(), keySize);
@@ -19,26 +19,21 @@ void save_training_data(const Training_data* data, const std::string& filename) 
         }
 
         // Serialize positive and negative vectors
-        size_t vectorSize = data->positive->size();
+        size_t vectorSize = data->positive_probability_vector->size();
         ofs.write(reinterpret_cast<const char*>(&vectorSize), sizeof(size_t));
         for (size_t i = 0; i < vectorSize; ++i) {
-            float val = (*data->positive)[i];
+            float val = (*data->positive_probability_vector)[i];
             ofs.write(reinterpret_cast<const char*>(&val), sizeof(float));
         }
 
-        vectorSize = data->negative->size();
+        vectorSize = data->negative_probability_vector->size();
         ofs.write(reinterpret_cast<const char*>(&vectorSize), sizeof(size_t));
         for (size_t i = 0; i < vectorSize; ++i) {
-            float val = (*data->negative)[i];
+            float val = (*data->negative_probability_vector)[i];
             ofs.write(reinterpret_cast<const char*>(&val), sizeof(float));
         }
-        ofs.write(reinterpret_cast<const char*>(&(data->positive_word_count)), sizeof(int));
-        ofs.write(reinterpret_cast<const char*>(&(data->negative_word_count)), sizeof(int));
-
         ofs.write(reinterpret_cast<const char*>(&(data->positive_file_count)), sizeof(int));
         ofs.write(reinterpret_cast<const char*>(&(data->negative_file_count)), sizeof(int));
-
-        ofs.write(reinterpret_cast<const char*>(&(data->total_files)), sizeof(int));
 
         ofs.close();
     }
@@ -52,7 +47,7 @@ Training_data* load_training_data(const std::string& filename) {
         // Deserialize guide
         size_t guideSize;
         ifs.read(reinterpret_cast<char*>(&guideSize), sizeof(size_t));
-        data->guide = new std::unordered_map<std::string, int>();
+        data->word_index_guide = new std::unordered_map<std::string, int>();
         for (size_t i = 0; i < guideSize; ++i) {
             size_t keySize;
             ifs.read(reinterpret_cast<char*>(&keySize), sizeof(size_t));
@@ -60,33 +55,30 @@ Training_data* load_training_data(const std::string& filename) {
             ifs.read(reinterpret_cast<char*>(&key[0]), keySize);
             int value;
             ifs.read(reinterpret_cast<char*>(&value), sizeof(int));
-            (*(data->guide))[key] = value;
+            (*(data->word_index_guide))[key] = value;
         }
 
         // Deserialize positive and negative vectors
         size_t vectorSize;
         ifs.read(reinterpret_cast<char*>(&vectorSize), sizeof(size_t));
-        data->positive = new std::vector<float>(vectorSize);
+        data->positive_probability_vector = new std::vector<float>(vectorSize);
         for (size_t i = 0; i < vectorSize; ++i) {
             float val;
             ifs.read(reinterpret_cast<char*>(&val), sizeof(float));
-            (*(data->positive))[i] = val;
+            (*(data->positive_probability_vector))[i] = val;
         }
 
         ifs.read(reinterpret_cast<char*>(&vectorSize), sizeof(size_t));
-        data->negative = new std::vector<float>(vectorSize);
+        data->negative_probability_vector = new std::vector<float>(vectorSize);
         for (size_t i = 0; i < vectorSize; ++i) {
             float val;
             ifs.read(reinterpret_cast<char*>(&val), sizeof(float));
-            (*(data->negative))[i] = val;
+            (*(data->negative_probability_vector))[i] = val;
         }
 
         // Deserialize file counts
-        ifs.read(reinterpret_cast<char*>(&(data->positive_word_count)), sizeof(int));
-        ifs.read(reinterpret_cast<char*>(&(data->negative_word_count)), sizeof(int));
         ifs.read(reinterpret_cast<char*>(&(data->positive_file_count)), sizeof(int));
         ifs.read(reinterpret_cast<char*>(&(data->negative_file_count)), sizeof(int));
-        ifs.read(reinterpret_cast<char*>(&(data->total_files)), sizeof(int));
 
         ifs.close();
     }
@@ -97,8 +89,5 @@ Training_data* load_training_data(const std::string& filename) {
 // Check if the training data file is available
 bool is_training_data_available(const std::string& filename) {
     std::ifstream file(filename);
-    if (file.good()) {
-        std::cout << "Training data available." << std::endl;
-    }
     return file.good();
 }

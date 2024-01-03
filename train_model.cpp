@@ -12,9 +12,17 @@ int calculate_unique_keys(std::map<std::string, int>* map1, std::map<std::string
     return size_counter.size() + 1;
 }
 
+double calculate_entropy(int positive_count, int negative_count) {
+    double negative_proportion = (float)negative_count / (positive_count)+(negative_count);
+    double positive_proportion = (float)positive_count / (positive_count)+(negative_count);
+    double entropy = -(negative_proportion * log2(negative_proportion) + positive_proportion * log2(positive_proportion));
+    return entropy;
+}
+
 //creates a map[key,value] with [string:word,int count] for every file in directory_path. returns the amount of files parsed
 int create_map(std::filesystem::path directory_path, std::map<std::string, int>* word_frequency_map) {
-    int file_counter = 0;
+
+    std::vector<std::filesystem::path> all_files;
 
     //rng for file-number control
     std::random_device rd;
@@ -23,14 +31,49 @@ int create_map(std::filesystem::path directory_path, std::map<std::string, int>*
 
     for (const auto& file : std::filesystem::directory_iterator(directory_path)) {
         if (dis(gen) < SKIPPAGE) {
-            add_file_to_map(file, word_frequency_map);
-            file_counter++;
+            all_files.push_back(file);
         }
     }
 
-    return file_counter;
+    //available cpu threads
+
+    const int total_threads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads_vector;
+    int files_per_thread = all_files.size() / total_threads;
+
+
+    //Launch threads
+    for (int i = 0; i < total_threads; ++i) {
+        int start = i * files_per_thread;
+        int end = (i == total_threads - 1) ? all_files.size() : (i + 1) * files_per_thread;
+        threads_vector.emplace_back(process_files, std::ref(all_files), start, end, word_frequency_map);
+    }
+
+    //Join
+    for (std::thread& th : threads_vector) {
+        if (th.joinable()) {
+            th.join();
+        }
+    }
+
+    return all_files.size();
 }
 
+//function to use multithreading for faster training
+void process_files(const std::vector<std::filesystem::path>& local_files, int local_start, int local_end, std::map<std::string, int>* word_frequency_map) {
+
+    for (int index = local_start; index < local_end; index++) {
+
+        std::map<std::string, int> local_map;
+        add_file_to_map(local_files[index], &local_map);
+
+        // Lock the mutex before accessing the shared map
+        std::lock_guard<std::mutex> guard(map_mutex);
+        for (const auto& [word, count] : local_map) {
+            (*word_frequency_map)[word] += count;
+        }
+    }
+}
 
 // Function to train the model
 Training_data* train(std::filesystem::path dir) {
@@ -99,6 +142,8 @@ Training_data* train(std::filesystem::path dir) {
     }
     delete positive_word_counts;
     delete negative_word_counts;
+
+    data->entropy = calculate_entropy(positive_file_count, negative_file_count);
     data->word_index_guide = word_index_guide;
     data->positive_probability_vector = positive_word_probabilities;
     data->negative_probability_vector = negative_word_probabilities;
