@@ -10,9 +10,9 @@
 #include <random>
 #include <thread>
 #include <mutex>
+#include "sorter.h"
 
-//Training File skip ratio (0.7 will skip roughly 70% of the training data)
-const float SKIPPAGE = 0.9f;
+
 
 //words per review to be omitted, less than Pk, more than Pn
 const float PK = 0.1;
@@ -29,4 +29,4 @@ int create_map(std::filesystem::path directory_path, std::map<std::string, int>*
 
 void process_files(const std::vector<std::filesystem::path>& files, int start, int end, std::map<std::string, int>* word_frequency_map);
 
-Training_data* train(std::filesystem::path dir);
+Training_data* train(std::filesystem::path dir, float skippage);

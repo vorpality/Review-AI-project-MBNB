@@ -11,4 +11,5 @@ struct Training_data {
     int positive_file_count;
     int negative_file_count;
     double entropy;
+    std::vector<std::pair<double, std::string>>* information_gain;
 };

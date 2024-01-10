@@ -1,0 +1,11 @@
+Test data
+Training files : 990 , Accuracy : 0.617261
+Training files : 2206 , Accuracy : 0.674797
+Training files : 3543 , Accuracy : 0.632583
+Training files : 4657 , Accuracy : 0.493121
+Training files : 6027 , Accuracy : 0.666354
+Training files : 7244 , Accuracy : 0.650406
+Training files : 8598 , Accuracy : 0.671044
+Training files : 9790 , Accuracy : 0.67167
+Training files : 11014 , Accuracy : 0.672295
+Training files : 12263 , Accuracy : 0.661664

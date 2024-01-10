@@ -1,5 +1,5 @@
 #include "test_data.h"
-#include <iostream>
+
 void process_reviews(const std::vector<std::filesystem::path>& review_paths, int local_start, int local_end, Training_data* model, int& positives, int& negatives, std::mutex& result_mutex) {
     for (int index = local_start; index < local_end; index++) {
         
@@ -22,6 +22,8 @@ std::pair<int,int> evaluate_dir_reviews(std::filesystem::path review_directory, 
     for (auto const& review_path : std::filesystem::directory_iterator(review_directory)) {
         all_review_paths.push_back(review_path);
     }
+    std::shuffle(all_review_paths.begin(), all_review_paths.end(), std::default_random_engine(std::random_device{}()));
+
 
     //Calculate available cpu threads
     const int total_threads = std::thread::hardware_concurrency();
@@ -36,7 +38,7 @@ std::pair<int,int> evaluate_dir_reviews(std::filesystem::path review_directory, 
     std::mutex result_mutex;
     for (int i = 0; i < total_threads; ++i) {
         int start = i * reviews_per_thread;
-        int end = (i == total_threads - 1) ? all_review_paths.size() : (i + 1) * reviews_per_thread;
+        int end = (i == total_threads - 1) ? all_review_paths.size() : i * reviews_per_thread + FILE_CAP;
         threads_vector.emplace_back(process_reviews, std::ref(all_review_paths), start, end, model, std::ref(positives), std::ref(negatives), std::ref(result_mutex));
     }
 

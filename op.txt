@@ -1,3 +1,0 @@
-Positive directory results.
-Positives: 9201
-Negatives: 3299
