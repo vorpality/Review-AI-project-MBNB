@@ -1,2 +1,25 @@
 Training data
-Training files : 1007 , Accuracy : 0.623149
+Training Data - positive  Metrics:
+Precision: 0.836773
+, Recall: 0.686858
+, F1: 0.75444
+, Accuracy: 0.727642
+, Files: 3198
+Training Data - negative Metrics:
+Precision: 0.618512
+, Recall: 0.7912
+, F1: 0.694279
+, Accuracy: 0.727642
+, Files: 3198
+Training Data - positive  Metrics:
+Precision: 0.849281
+, Recall: 0.681043
+, F1: 0.755914
+, Accuracy: 0.725766
+, Files: 3198
+Training Data - negative Metrics:
+Precision: 0.602251
+, Recall: 0.799834
+, F1: 0.687121
+, Accuracy: 0.725766
+, Files: 3198

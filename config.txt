@@ -1,17 +1,20 @@
 # Configuration for MBNB model training
 
 
-# PK - Skip ration of rare words. 0.2 means that if they dont exist in at least 20% of the files they will be skipped
-PK=0.3
+# FULL_TRAIN - Flag to perform full training to after finding optimal n and k values
+FULL_TRAIN=false
 
+
+# PK - Skip ration of rare words. 0.2 means that if they dont exist in at least 20% of the files they will be skipped
+PK=0.03
 # PN - Skip ration of common words. 3 means that if they exist at least in 300% of the files they will be skipped
-PN=1
+PN=0.8
 
 # STARTING_FILES - the percentage of files the first model will be trained on(the least amount of training files to be taken into consideration)
-STARTING_FILES=0.05
+STARTING_FILES=0.1
 
 # MODELS_TO_BE_TRAINED -  the amount of models that will be trained.
-MODELS_TO_BE_TRAINED=5
+MODELS_TO_BE_TRAINED=4
 
 # MODEL_FILES_INCREMENT - the value by which the amount of training files will be incremented in every model.
 MODEL_FILES_INCREMENT=0.05
@@ -37,7 +40,8 @@ LOAD_MODELS=false
 LOAD_DIR=data/model
 
 # FILE_CAP - Maximum file processing cap during testing
-FILE_CAP=500
+FILE_CAP=50
 
 # MINIMUM_LETTERS - Minimum number of letters for word inclusion
 MINIMUM_LETTERS=3
+

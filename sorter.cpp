@@ -1,33 +1,24 @@
 #include "sorter.h"
 
 void swap(int index_a, int index_b, Training_data* data) {
-    // Assuming information_gain is a vector of pairs (double, string) and accessible
+    // Accessing the vectors from the data structure
     auto& information_gain = *(data->information_gain);
     auto& word_index_guide = *(data->word_index_guide);
     auto& positive_probability_vector = *(data->positive_probability_vector);
     auto& negative_probability_vector = *(data->negative_probability_vector);
 
-    // Swap words in the word index guide
-    std::string word_a = information_gain[index_a].second;
-    std::string word_b = information_gain[index_b].second;
-
-    word_index_guide[word_a] = index_b;
-    word_index_guide[word_b] = index_a;
-
     // Swap the information gain values
-    std::pair<double, std::string> ig_temp = information_gain[index_a];
-    information_gain[index_a] = information_gain[index_b];
-    information_gain[index_b] = ig_temp;
+    std::swap(information_gain[index_a], information_gain[index_b]);
+
+    // Update word_index_guide based on the new positions of words
+    word_index_guide[information_gain[index_a].second] = index_a;
+    word_index_guide[information_gain[index_b].second] = index_b;
 
     // Swap the positive probability indices
-    float ppi_temp = positive_probability_vector[index_a];
-    positive_probability_vector[index_a] = positive_probability_vector[index_b];
-    positive_probability_vector[index_b] = ppi_temp;
+    std::swap(positive_probability_vector[index_a], positive_probability_vector[index_b]);
 
     // Swap the negative probability indices
-    float npi_temp = negative_probability_vector[index_a];
-    negative_probability_vector[index_a] = negative_probability_vector[index_b];
-    negative_probability_vector[index_b] = npi_temp;
+    std::swap(negative_probability_vector[index_a], negative_probability_vector[index_b]);
 }
 
 void bubble_sort_on_ig(Training_data *data) {

@@ -13,9 +13,15 @@ int calculate_unique_keys(std::map<std::string, int>* map1, std::map<std::string
 }
 
 double calculate_entropy(int positive_count, int negative_count) {
-    double negative_proportion = (float)negative_count + 1 / (positive_count + negative_count + 2);
-    double positive_proportion = (float)positive_count + 1 / (positive_count + negative_count + 2);
+    double total_count = positive_count + negative_count;
+    double negative_proportion = (double)(negative_count + 1) / (total_count + 2);
+    double positive_proportion = (double)(positive_count + 1) / (total_count + 2);
+
+    if (negative_proportion == 0) negative_proportion = 1/(total_count + 2);
+    if (positive_proportion == 0) positive_proportion = 1/(total_count + 2);
+
     double entropy = -(negative_proportion * log2(negative_proportion) + positive_proportion * log2(positive_proportion));
+
     return entropy;
 }
 
@@ -103,24 +109,18 @@ std::vector<std::pair<double,std::string>>* calculate_information_gain(Training_
     std::unordered_map<std::string, int>* word_index_guide = data->word_index_guide;
     std::vector<std::pair<double, std::string>>* results = new std::vector<std::pair<double, std::string>>(word_index_guide->size());
     int positive_with=0, negative_with=0;
+
     for (auto& entry : (*word_index_guide)) {
         std::string word = entry.first;
         int vector_index = entry.second;
         int positive_count = data->positive_file_count;
         int negative_count = data->negative_file_count;
 
-        try {
-            positive_with = positive_wordmap->at(word)+1;
-        }
-        catch (...){
-            positive_with = 1;
-        }        
-        try {
-            negative_with = negative_wordmap->at(word)+1;
-        }
-        catch (...){
-            negative_with = 1;
-        }
+        auto pos_it = positive_wordmap->find(word);
+        positive_with = (pos_it != positive_wordmap->end()) ? pos_it->second + 1 : 1;
+
+        auto neg_it = negative_wordmap->find(word);
+        negative_with = (neg_it != negative_wordmap->end()) ? neg_it->second + 1 : 1;
         int total_count = positive_count + negative_count;
 
         int positive_without = positive_count - positive_with;
@@ -135,7 +135,7 @@ std::vector<std::pair<double,std::string>>* calculate_information_gain(Training_
         double weighted_entropy = (weight_with * entropy_with) + (weight_without * entropy_without);
         double information_gain = data->entropy - weighted_entropy;
         
-        (*results)[vector_index] = std::pair<double, std::string>(information_gain, word);
+        (*results)[vector_index] = std::make_pair(information_gain, word);
     }    return results;
 
 }
