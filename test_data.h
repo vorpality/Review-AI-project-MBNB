@@ -8,7 +8,7 @@
 #include <random>
 #include <algorithm>
 
-const int FILE_CAP = 50;
+extern int FILE_CAP;
 // Function prototypes
 
 void process_reviews(const std::vector<std::filesystem::path>& review_paths, int start, int end, Training_data* model, int& positives, int& negatives, std::mutex& result_mutex);

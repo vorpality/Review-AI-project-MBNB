@@ -10,9 +10,7 @@
 
 //Preprocess control.
 
-
-//words of, or less letter to be omitted
-const int MINIMUM_LETTERS = 3;
+extern int MINIMUM_LETTERS;
 
 
 // Function prototypes

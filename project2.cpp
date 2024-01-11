@@ -4,6 +4,7 @@
 #include "test_data.h"
 #include "data_manager.h"
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <map>
 #include <unordered_map>
@@ -16,71 +17,88 @@ namespace plt = matplotlibcpp;
 
 const std::filesystem::path MAIN_DIR = "x64/Debug/includes/aclImdb";
 
-/* 
-    starting_files = the percentage of files the first model will be trained on(the least amount of training files to be taken into consideration)
-    models_to_be_trained = the amount of models that will be trained.
-    model_files_increment = the value by which the amount of training files will be incremented in every model.
-    save_models = true saves the models for future use
-    load_models = true loads the models if they exist, this makes the execution ignore all other control variables given 
+//Globals
 
-    example : 
-    starting file = 0.04
-    models_to_be_trained = 10
-    model_files_increment = 0.1f
+float PK;
+float PN;
+float STARTING_FILES;
+int MODELS_TO_BE_TRAINED;
+float MODEL_FILES_INCREMENT;
+bool SAVE_MODELS;
+bool LOAD_MODELS;
+std::filesystem::path LOAD_DIR;
+int FILE_CAP;
+int MINIMUM_LETTERS;
 
-    10 models will be trained.
-    the first model will be trained on 4% of the given data
-    the second model will be trained on 14% of the given data
-    the third model will be trained on 24% of the given data, etc
-*/
 
-float starting_files = 0.04;
-int models_to_be_trained = 10;
-float model_files_increment = 0.05f;
-bool save_models = false;
-bool load_models = false;
-fs::path load_dir = "data/model";
+void readConfig(const std::string& filename = "config.txt"){
+
+    std::ifstream configFile(filename);
+    if (!configFile.is_open()) {
+        std::cerr << "Unable to open config file: " << filename << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(configFile, line)) {
+        // Ignore comments and empty lines
+        if (line.empty() || line[0] == '#') continue;
+
+        std::istringstream iss(line);
+        std::string key, value;
+
+        if (std::getline(iss, key, '=') && std::getline(iss, value)) {
+            if (key == "PK") PK = std::stof(value);
+            else if (key == "PN") PN = std::stof(value);
+            else if (key == "STARTING_FILES") STARTING_FILES = std::stof(value);
+            else if (key == "MODELS_TO_BE_TRAINED") MODELS_TO_BE_TRAINED = std::stoi(value);
+            else if (key == "MODEL_FILES_INCREMENT") MODEL_FILES_INCREMENT = std::stof(value);
+            else if (key == "SAVE_MODELS") SAVE_MODELS = (value == "true" || value == "1");
+            else if (key == "LOAD_MODELS") LOAD_MODELS = (value == "true" || value == "1");
+            else if (key == "LOAD_DIR") LOAD_DIR = value;
+            else if (key == "FILE_CAP") FILE_CAP = std::stoi(value);
+            else if (key == "MINIMUM_LETTERS") MINIMUM_LETTERS = std::stoi(value);
+        }
+    }
+}
 
 std::vector<std::pair<double, int>> results_test, results_train;
 
 bool check_variables() {
-    if (load_models) return 1;
+    if (LOAD_MODELS) return true;
 
-    if (starting_files <= 0.0) {
-        std::cout << "The starting_files variable given should be greater than 0";
-        return 0;
+    if (STARTING_FILES <= 0.0) {
+        std::cout << "The STARTING_FILES variable given in the config.txt file should be greater than 0.\n";
+        return false;
     }
-    if (starting_files > 1) {
-        std::cout << "The starting_files variable given is greater than 1, so it has been defaulted to 1";
-        starting_files = 1;
-        return 1;
+    if (STARTING_FILES > 1) {
+        std::cout << "The STARTING_FILES variable given in the config.txt file is greater than 1, so it has been defaulted to 1.\n";
+        STARTING_FILES = 1;
     }
-    if (model_files_increment < 0) {
-        std::cout << "The model_files_increment variable given is not greater than 0, so it has been defaulted to 0.1";
-        model_files_increment = 0.1;
-        return 1;
+    if (MODEL_FILES_INCREMENT < 0) {
+        std::cout << "The MODEL_FILES_INCREMENT variable given in the config.txt file is not greater than 0, so it has been defaulted to 0.1.\n";
+        MODEL_FILES_INCREMENT = 0.1;
     }
-    if (models_to_be_trained < 0) {
-        std::cout << "The models_to_be_trained variable given is less than 0, so it has been defaulted to 1";
-        models_to_be_trained = 1;
-        return 1;
+    if (MODELS_TO_BE_TRAINED < 0) {
+        std::cout << "The MODELS_TO_BE_TRAINED variable given in the config.txt file is less than 0, so it has been defaulted to 1.\n";
+        MODELS_TO_BE_TRAINED = 1;
     }
-    if (starting_files + (models_to_be_trained * model_files_increment) > 1) {
-        std::cout << "The program cannot continue with the set of variables given, check \"starting_files\", \"models_to_be_trained\" and \"model_files_increment\".";
-        return 0;
+    if (STARTING_FILES + (MODELS_TO_BE_TRAINED * MODEL_FILES_INCREMENT) > 1) {
+        std::cout << "The program cannot continue with the set of variables given in the config.txt file, check \"STARTING_FILES\", \"MODELS_TO_BE_TRAINED\" and \"MODEL_FILES_INCREMENT\".\n";
+        return false;
     }
-    return 1;
+    return true;
 }
 
 Training_data* create_model(int i, fs::path path_to_file) {
-    if (load_models) {
-        std::string file_name = load_dir.string() + std::to_string(i);
+    if (LOAD_MODELS) {
+        std::string file_name = LOAD_DIR.string() + std::to_string(i);
         return load_training_data(file_name);
     }
     else {
-        Training_data* model = train(path_to_file, (i * model_files_increment) + starting_files);
-        if (save_models) {
-            std::string file_name = load_dir.string() + std::to_string(i);
+        Training_data* model = train(path_to_file, (i * MODEL_FILES_INCREMENT) + STARTING_FILES);
+        if (SAVE_MODELS) {
+            std::string file_name = LOAD_DIR.string() + std::to_string(i);
             save_training_data(model, file_name);
         }
         return model;
@@ -110,7 +128,7 @@ bool train_and_evaluate(int argument_count, char* argument_values [] ) {
     float accuracy;
     int training_files;
     
-    for (int i = 0; i <= models_to_be_trained - 1; ++i) {
+    for (int i = 0; i <= MODELS_TO_BE_TRAINED - 1; ++i) {
 
         model = create_model(i, train_dir);
 
@@ -183,8 +201,9 @@ void print_results() {
     //plt::plot(amount_of_files, model_accuracy, "Train data");
     //plt::save("./data/test-train_graph.png");
 }
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
+
+    readConfig("config.txt");
     //Check model training variables
     if (!check_variables()) {
         return -1;

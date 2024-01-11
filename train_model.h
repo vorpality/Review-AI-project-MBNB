@@ -14,9 +14,8 @@
 
 
 
-//words per review to be omitted, less than Pk, more than Pn
-const float PK = 0.1;
-const float PN = 3;
+extern float PK;
+extern float PN;
 
 
 	// Function prototypes

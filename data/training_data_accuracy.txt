@@ -1,11 +1,2 @@
 Training data
-Training files : 990 , Accuracy : 0.615072
-Training files : 2206 , Accuracy : 0.653846
-Training files : 3543 , Accuracy : 0.655097
-Training files : 4657 , Accuracy : 0.498749
-Training files : 6027 , Accuracy : 0.655097
-Training files : 7244 , Accuracy : 0.65666
-Training files : 8598 , Accuracy : 0.667605
-Training files : 9790 , Accuracy : 0.667917
-Training files : 11014 , Accuracy : 0.686992
-Training files : 12263 , Accuracy : 0.675109
+Training files : 1007 , Accuracy : 0.623149

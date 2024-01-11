@@ -13,8 +13,8 @@ int calculate_unique_keys(std::map<std::string, int>* map1, std::map<std::string
 }
 
 double calculate_entropy(int positive_count, int negative_count) {
-    double negative_proportion = (float)negative_count+1 / (positive_count)+(negative_count)+2;
-    double positive_proportion = (float)positive_count +1/ (positive_count)+(negative_count)+2;
+    double negative_proportion = (float)negative_count + 1 / (positive_count + negative_count + 2);
+    double positive_proportion = (float)positive_count + 1 / (positive_count + negative_count + 2);
     double entropy = -(negative_proportion * log2(negative_proportion) + positive_proportion * log2(positive_proportion));
     return entropy;
 }
