@@ -1,9 +1,9 @@
 #include "test_data.h"
 
-void process_reviews(const std::vector<std::filesystem::path>& review_paths, int local_start, int local_end, Training_data* model, int& positives, int& negatives, std::mutex& result_mutex) {
+void process_reviews(const std::vector<std::filesystem::path>& review_paths, int local_start, int local_end,TrainingData& model, int& positives, int& negatives, std::mutex& result_mutex) {
     for (int index = local_start; index < local_end; index++) {
         
-        std::vector<int> review = file_to_vector(review_paths[index], model->word_index_guide);
+        std::vector<int> review = file_to_vector(review_paths[index], model.get_guide());
         std::pair<double,double> result = test_vector(review, model);
         // Lock the mutex before accessing the shared result variable
         std::lock_guard<std::mutex> guard(result_mutex);
@@ -16,14 +16,15 @@ void process_reviews(const std::vector<std::filesystem::path>& review_paths, int
     }
 }
 
-std::pair<int,int> evaluate_dir_reviews(std::filesystem::path review_directory, Training_data* model){
+std::pair<int,int> evaluate_dir_reviews(std::filesystem::path review_directory, TrainingData& model){
     std::vector<std::filesystem::path> all_review_paths;
+
 
     for (auto const& review_path : std::filesystem::directory_iterator(review_directory)) {
         all_review_paths.push_back(review_path);
     }
     std::shuffle(all_review_paths.begin(), all_review_paths.end(), std::default_random_engine(std::random_device{}()));
-
+    all_review_paths.resize(FILE_CAP);
 
     //Calculate available cpu threads
     const int total_threads = std::thread::hardware_concurrency();
@@ -38,8 +39,8 @@ std::pair<int,int> evaluate_dir_reviews(std::filesystem::path review_directory, 
     std::mutex result_mutex;
     for (int i = 0; i < total_threads; ++i) {
         int start = i * reviews_per_thread;
-        int end = (i == total_threads - 1) ? all_review_paths.size() : i * reviews_per_thread + FILE_CAP;
-        threads_vector.emplace_back(process_reviews, std::ref(all_review_paths), start, end, model, std::ref(positives), std::ref(negatives), std::ref(result_mutex));
+        int end = (i == total_threads - 1) ? all_review_paths.size() : (i + 1) * reviews_per_thread;
+        threads_vector.emplace_back(process_reviews, std::ref(all_review_paths), start, end, std::ref(model), std::ref(positives), std::ref(negatives), std::ref(result_mutex));
     }
 
     //Join
@@ -51,10 +52,10 @@ std::pair<int,int> evaluate_dir_reviews(std::filesystem::path review_directory, 
     return std::pair<int, int>(positives, negatives);
 }
 
-std::pair<double,double> test_vector(std::vector<int> review_vector, Training_data* model) {
+std::pair<double,double> test_vector(std::vector<int> review_vector, TrainingData& model) {
 
-    float Pc0 = (float)model->negative_file_count / (float)(model->positive_file_count + model->negative_file_count); //P(c=0)
-    float Pc1 = (float)model->positive_file_count / (float)(model->positive_file_count + model->negative_file_count); //P(c=1)
+    float Pc0 = (float)model.get_file_count_negative() / (float)(model.get_total_files()); //P(c=0)
+    float Pc1 = (float)model.get_file_count_positive() / (float)(model.get_total_files()); //P(c=1)
 
 
     long double Px1 = log(Pc1);
@@ -66,8 +67,8 @@ std::pair<double,double> test_vector(std::vector<int> review_vector, Training_da
         //tc = 0 (negative review)
         //tc = 1 (positive review)
 
-        float tc0 = (*model->negative_probability_vector)[index];
-        float tc1 = (*model->positive_probability_vector)[index];
+        float tc0 = model.get_probability_negative(index);
+        float tc1 = model.get_probability_positive(index);
 
 
         // Print statements for debugging

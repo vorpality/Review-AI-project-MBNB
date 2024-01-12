@@ -1,11 +1,10 @@
 #include "sorter.h"
 
-void swap(int index_a, int index_b, Training_data* data) {
-    // Accessing the vectors from the data structure
-    auto& information_gain = *(data->information_gain);
-    auto& word_index_guide = *(data->word_index_guide);
-    auto& positive_probability_vector = *(data->positive_probability_vector);
-    auto& negative_probability_vector = *(data->negative_probability_vector);
+void swap(int index_a, int index_b,
+    std::vector<std::pair<double, std::string>>& information_gain,
+    std::unordered_map<std::string, int>& word_index_guide,
+    std::vector<float>& positive_probability_vector,
+    std::vector<float>& negative_probability_vector) {
 
     // Swap the information gain values
     std::swap(information_gain[index_a], information_gain[index_b]);
@@ -21,17 +20,21 @@ void swap(int index_a, int index_b, Training_data* data) {
     std::swap(negative_probability_vector[index_a], negative_probability_vector[index_b]);
 }
 
-void bubble_sort_on_ig(Training_data *data) {
-    std::vector<std::pair<double, std::string>>* information_gain = data->information_gain;
+void bubble_sort_on_ig(std::vector<std::pair<double, std::string>>& information_gain,
+    std::unordered_map<std::string, int>& word_index_guide,
+    std::vector<float>& positive_probability_vector,
+    std::vector<float>& negative_probability_vector) {
 
     bool swapped;
     do {
         swapped = false;
-        for (int i = 1; i < data->information_gain->size(); i++) {
+        for (int i = 1; i < information_gain.size(); i++) {
             // Assuming you are sorting in descending order of information gain
-            if ((*information_gain)[i - 1].first < (*information_gain)[i].first) {
+            if (information_gain[i - 1].first < information_gain[i].first) {
                 // Swap elements at index i-1 and i
-                swap(i - 1, i, data);
+                swap(i - 1, i, 
+                    information_gain, word_index_guide,
+                    positive_probability_vector, negative_probability_vector);
                 swapped = true;
             }
         }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Training_data.h"
+#include "TrainingData.h"
 #include "text_processing.h"
 #include <filesystem>
 #include <map>
@@ -13,19 +13,10 @@
 #include "sorter.h"
 
 
-
-extern float PK;
-extern float PN;
-
-
 	// Function prototypes
 
-double calculate_entropy(int positive_count, int negative_count);
+int create_map(std::filesystem::path directory_path, std::map<std::string, int>& word_frequency_map, float skippage);
 
-int calculate_unique_keys(std::map<std::string, int>* map1, std::map<std::string, int>* map2);
+void process_files(const std::vector<std::filesystem::path>& files, int start, int end, std::map<std::string, int>& word_frequency_map);
 
-int create_map(std::filesystem::path directory_path, std::map<std::string, int>* word_frequency_map);
-
-void process_files(const std::vector<std::filesystem::path>& files, int start, int end, std::map<std::string, int>* word_frequency_map);
-
-Training_data* train(std::filesystem::path dir, float skippage);
+TrainingData train(std::filesystem::path dir, float skippage);

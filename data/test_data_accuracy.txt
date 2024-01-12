@@ -1,25 +1,201 @@
 Test data
-Test Data - positive Metrics:
-Precision: 0.850532
-, Recall: 0.693524
-, F1: 0.764045
-, Accuracy: 0.737336
-, Files: 3198
-Test Data - negative Metrics:
-Precision: 0.62414
-, Recall: 0.806791
-, F1: 0.703808
-, Accuracy: 0.737336
-, Files: 3198
-Test Data - positive Metrics:
-Precision: 0.858662
-, Recall: 0.68139
-, F1: 0.759823
-, Accuracy: 0.72858
-, Files: 3198
-Test Data - negative Metrics:
-Precision: 0.598499
-, Recall: 0.80896
-, F1: 0.687994
-, Accuracy: 0.72858
-, Files: 3198
+
+Test 0 positive
+
+Metrics:
+Precision: 0.79
+Recall: 0.77451
+F1: 0.782178
+Accuracy: 0.79
+Files: 1253
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 1 negative
+
+Metrics:
+Precision: 0.77
+Recall: 0.785714
+F1: 0.777778
+Accuracy: 0.77
+Files: 1253
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 2 positive
+
+Metrics:
+Precision: 0.83
+Recall: 0.783019
+F1: 0.805825
+Accuracy: 0.83
+Files: 1861
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 3 negative
+
+Metrics:
+Precision: 0.77
+Recall: 0.819149
+F1: 0.793814
+Accuracy: 0.77
+Files: 1861
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 4 positive
+
+Metrics:
+Precision: 0.83
+Recall: 0.747748
+F1: 0.78673
+Accuracy: 0.83
+Files: 2244
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 5 negative
+
+Metrics:
+Precision: 0.72
+Recall: 0.808989
+F1: 0.761905
+Accuracy: 0.72
+Files: 2244
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 6 positive
+
+Metrics:
+Precision: 0.77
+Recall: 0.77
+F1: 0.77
+Accuracy: 0.77
+Files: 2747
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 7 negative
+
+Metrics:
+Precision: 0.77
+Recall: 0.77
+F1: 0.77
+Accuracy: 0.77
+Files: 2747
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 8 positive
+
+Metrics:
+Precision: 0.84
+Recall: 0.777778
+F1: 0.807692
+Accuracy: 0.84
+Files: 3144
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 9 negative
+
+Metrics:
+Precision: 0.76
+Recall: 0.826087
+F1: 0.791667
+Accuracy: 0.76
+Files: 3144
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 10 positive
+
+Metrics:
+Precision: 0.84
+Recall: 0.770642
+F1: 0.803828
+Accuracy: 0.84
+Files: 3777
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 11 negative
+
+Metrics:
+Precision: 0.75
+Recall: 0.824176
+F1: 0.78534
+Accuracy: 0.75
+Files: 3777
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 12 positive
+
+Metrics:
+Precision: 0.8
+Recall: 0.792079
+F1: 0.79602
+Accuracy: 0.8
+Files: 4237
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 13 negative
+
+Metrics:
+Precision: 0.79
+Recall: 0.79798
+F1: 0.79397
+Accuracy: 0.79
+Files: 4237
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 14 positive
+
+Metrics:
+Precision: 0.77
+Recall: 0.77
+F1: 0.77
+Accuracy: 0.77
+Files: 4719
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 15 negative
+
+Metrics:
+Precision: 0.77
+Recall: 0.77
+F1: 0.77
+Accuracy: 0.77
+Files: 4719
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 16 positive
+
+Metrics:
+Precision: 0.83
+Recall: 0.761468
+F1: 0.794258
+Accuracy: 0.83
+Files: 5249
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 17 negative
+
+Metrics:
+Precision: 0.74
+Recall: 0.813187
+F1: 0.774869
+Accuracy: 0.74
+Files: 5249
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 18 positive
+
+Metrics:
+Precision: 0.84
+Recall: 0.770642
+F1: 0.803828
+Accuracy: 0.84
+Files: 5806
+PK = 0.01, PN = 1.11, IG ratio : 0.3
+
+Test 19 negative
+
+Metrics:
+Precision: 0.75
+Recall: 0.824176
+F1: 0.78534
+Accuracy: 0.75
+Files: 5806
+PK = 0.01, PN = 1.11, IG ratio : 0.3

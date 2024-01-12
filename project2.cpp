@@ -1,5 +1,6 @@
 ﻿// project2.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+#include "config.h"
 #include "train_model.h"
 #include "test_data.h"
 #include "data_manager.h"
@@ -10,10 +11,10 @@
 #include <unordered_map>
 #include <vector>
 #include <filesystem>
-#include <matplotlibcpp.h>
+#include <algorithm>
 
 namespace fs = std::filesystem;
-namespace plt = matplotlibcpp;
+//namespace plt = matplotlibcpp;
 
 const std::filesystem::path MAIN_DIR = "x64/Debug/includes/aclImdb";
 
@@ -26,110 +27,29 @@ struct Metrics {
     int files;
 };
 
-//Globals
-
-float PK;
-float PN;
-float STARTING_FILES;
-int MODELS_TO_BE_TRAINED;
-float MODEL_FILES_INCREMENT;
-bool SAVE_MODELS;
-bool LOAD_MODELS;
-std::filesystem::path LOAD_DIR;
-int FILE_CAP;
-int MINIMUM_LETTERS;
-bool FULL_TRAIN;
 
 
 std::vector<Metrics> results_test, results_train;
 
-void read_config(const std::string& filename = "config.txt"){
 
-    std::ifstream config_file(filename);
-    if (!config_file.is_open()) {
-        std::cerr << "Unable to open config file: " << filename << std::endl;
-        return;
-    }
-
-    std::string line;
-    while (std::getline(config_file, line)) {
-        // Ignore comments and empty lines
-        if (line.empty() || line[0] == '#') continue;
-
-        std::istringstream iss(line);
-        std::string key, value;
-
-        if (std::getline(iss, key, '=') && std::getline(iss, value)) {
-            if (key == "FULL_TRAIN") FULL_TRAIN = (value == "true" || value == "1");
-            if (key == "PK") PK = std::stof(value);
-            else if (key == "PN") PN = std::stof(value);
-            else if (key == "STARTING_FILES") STARTING_FILES = std::stof(value);
-            else if (key == "MODELS_TO_BE_TRAINED") MODELS_TO_BE_TRAINED = std::stoi(value);
-            else if (key == "MODEL_FILES_INCREMENT") MODEL_FILES_INCREMENT = std::stof(value);
-            else if (key == "SAVE_MODELS") SAVE_MODELS = (value == "true" || value == "1");
-            else if (key == "LOAD_MODELS") LOAD_MODELS = (value == "true" || value == "1");
-            else if (key == "LOAD_DIR") LOAD_DIR = value;
-            else if (key == "FILE_CAP") FILE_CAP = std::stoi(value);
-            else if (key == "MINIMUM_LETTERS") MINIMUM_LETTERS = std::stoi(value);
-        }
-    }
-}
-
-
-
-bool check_variables() {
-    if (LOAD_MODELS) return true;
-
-    if (STARTING_FILES <= 0.0) {
-        std::cout << "The STARTING_FILES variable given in the config.txt file should be greater than 0.\n";
-        return false;
-    }
-    if (STARTING_FILES > 1) {
-        std::cout << "The STARTING_FILES variable given in the config.txt file is greater than 1, so it has been defaulted to 1.\n";
-        STARTING_FILES = 1;
-    }
-    if (MODEL_FILES_INCREMENT < 0) {
-        std::cout << "The MODEL_FILES_INCREMENT variable given in the config.txt file is not greater than 0, so it has been defaulted to 0.1.\n";
-        MODEL_FILES_INCREMENT = 0.1;
-    }
-    if (MODELS_TO_BE_TRAINED < 0) {
-        std::cout << "The MODELS_TO_BE_TRAINED variable given in the config.txt file is less than 0, so it has been defaulted to 1.\n";
-        MODELS_TO_BE_TRAINED = 1;
-    }
-    if (STARTING_FILES + (MODELS_TO_BE_TRAINED * MODEL_FILES_INCREMENT) > 1) {
-        std::cout << "The program cannot continue with the set of variables given in the config.txt file, check \"STARTING_FILES\", \"MODELS_TO_BE_TRAINED\" and \"MODEL_FILES_INCREMENT\".\n";
-        return false;
-    }
-    return true;
-}
-
-Metrics calculate_metrics(int tp, int fp, int tn, int fn, std::string type) {
+Metrics calculate_metrics(int tp, int fp, int tn, int fn, std::string type, int files) {
     Metrics metrics;
 
     metrics.type = type;
-    metrics.files = (tp + fp + tn + fn);
+    metrics.files = files;
     metrics.precision = tp / (double)(tp + fp);
     metrics.recall = tp / (double)(tp + fn);
     metrics.f1 = 2 * (metrics.precision * metrics.recall) / (metrics.precision + metrics.recall);
-    metrics.accuracy = (double)(tp + tn) / (double)(metrics.files);
+    metrics.accuracy = (double)(tp) / (double)(tp + fp);
     
     return metrics;
 }
 
-Training_data* create_model(int i, fs::path path_to_file) {
-    if (LOAD_MODELS) {
-        std::string file_name = LOAD_DIR.string() + std::to_string(i);
-        return load_training_data(file_name);
-    }
-    else {
-        Training_data* model = train(path_to_file, (i * MODEL_FILES_INCREMENT) + STARTING_FILES);
-        if (SAVE_MODELS) {
-            std::string file_name = LOAD_DIR.string() + std::to_string(i);
-            save_training_data(model, file_name);
-        }
-        return model;
-    }
 
+TrainingData create_model(int i, fs::path path_to_file) {
+    std::cout <<"Training file ratio to be used : " << (i * MODEL_FILES_INCREMENT) + STARTING_FILES << 
+        "\nPK = " << PK << " , PN = " << PN << "\nIG top ratio = " << SHED_RATIO << std::endl;
+    return train(path_to_file, (i * MODEL_FILES_INCREMENT) + STARTING_FILES);
 }
 
 bool train_and_evaluate(fs::path train_dir, fs::path test_dir){
@@ -139,97 +59,100 @@ bool train_and_evaluate(fs::path train_dir, fs::path test_dir){
     fs::path negative_test = (test_dir / "neg");
     fs::path positive_test = (test_dir / "pos");
 
-    Training_data* model = nullptr;
 
     std::pair<int, int> evaluation_results_positive, evaluation_results_train_positive;
     std::pair<int, int> evaluation_results_negative, evaluation_results_train_negative;
     int training_files;
     
     for (int i = 0; i <= MODELS_TO_BE_TRAINED - 1; ++i) {
+        std::cout << "\nTraining model " << i + 1 << " out of " << MODELS_TO_BE_TRAINED << std::endl;
+            
+        TrainingData model = create_model(i, train_dir);
 
-        model = create_model(i, train_dir);
-
-        training_files = model->positive_file_count + model->negative_file_count;
+        training_files = model.get_total_files();
         evaluation_results_positive = evaluate_dir_reviews(positive_test, model);
         evaluation_results_negative = evaluate_dir_reviews(negative_test, model);
         evaluation_results_train_positive = evaluate_dir_reviews(train_dir / "pos", model);
         evaluation_results_train_negative = evaluate_dir_reviews(train_dir / "neg", model);
-        Metrics positive_metrics = calculate_metrics(evaluation_results_positive.first, evaluation_results_positive.second, evaluation_results_negative.second, evaluation_results_negative.first, "positive");
-        Metrics negative_metrics = calculate_metrics(evaluation_results_negative.second, evaluation_results_negative.first, evaluation_results_positive.first, evaluation_results_positive.second, "negative");
+        Metrics positive_metrics = calculate_metrics(evaluation_results_positive.first, evaluation_results_positive.second, evaluation_results_negative.second, evaluation_results_negative.first, "positive", training_files);
+        Metrics negative_metrics = calculate_metrics(evaluation_results_negative.second, evaluation_results_negative.first, evaluation_results_positive.first, evaluation_results_positive.second, "negative", training_files);
 
-        Metrics positive_train_metrics = calculate_metrics(evaluation_results_train_positive.first, evaluation_results_train_positive.second, evaluation_results_train_negative.second, evaluation_results_train_negative.first, "positive ");
-        Metrics negative_train_metrics = calculate_metrics(evaluation_results_train_negative.second, evaluation_results_train_negative.first, evaluation_results_train_positive.first, evaluation_results_train_positive.second, "negative");
+        Metrics positive_train_metrics = calculate_metrics(evaluation_results_train_positive.first, evaluation_results_train_positive.second, evaluation_results_train_negative.second, evaluation_results_train_negative.first, "positive", training_files);
+        Metrics negative_train_metrics = calculate_metrics(evaluation_results_train_negative.second, evaluation_results_train_negative.first, evaluation_results_train_positive.first, evaluation_results_train_positive.second, "negative", training_files);
+        std::cout << "Training files used : " << training_files << "\nResults on Test files :\n" <<" Total Accuracy : " << (positive_metrics.accuracy + negative_metrics.accuracy)/2 << " , Positive accuracy : " << positive_metrics.accuracy << " , Negative accuracy : " << negative_metrics.accuracy << std::endl;
+        std::cout << "\nResults on Training files :\n" << "Total Accuracy : " << (positive_train_metrics.accuracy + negative_train_metrics.accuracy)/2 << " , Positive accuracy : " << positive_train_metrics.accuracy << " , Negative accuracy : " << negative_train_metrics.accuracy << std::endl;
 
         results_test.push_back(positive_metrics);
         results_test.push_back(negative_metrics);
         results_train.push_back(positive_train_metrics);
         results_train.push_back(negative_train_metrics);
     }
-    model = nullptr;
     return 1;
 }
 
 void perform_full_training(fs::path train_dir, fs::path test_dir) {
+    std::cout << "Training commencing.." << std::endl;
     // Start from the current best known values
     float best_pk = PK; // e.g., 0.05
     float best_pn = PN; // e.g., 2
     float best_accuracy = 0.0f;
 
-    // Define ranges around the current best values for PK and PN
-    float pk_start = best_pk - 0.02f; // e.g., start a bit lower than the current best
-    float pk_end = best_pk + 0.02f; // e.g., end a bit higher than the current best
-    float pn_start = best_pn - 0.4f; // e.g., start a bit lower than the current best
-    float pn_end = best_pn + 0.4f; // e.g., end a bit higher than the current best
+    // Define ranges around the current best values for PK and PN always larger than 0
+    float pk_start = std::max(best_pk - (PK_STEP*2), 0.0f); //  start a bit lower than the current best
+    float pk_end = std::max(best_pk + (PK_STEP*2), 0.0f); // end a bit higher than current pk
+    float pn_start = std::max(best_pn - (PN_STEP*2), 0.0f); // start a bit lower than the current best
+    float pn_end = std::max(best_pn + (PN_STEP*2), 0.0f); // end a bit higher than the current best
 
     if (FULL_TRAIN) {
-        // Loop over PK values
-        for (float pk = pk_start; pk <= pk_end; pk += 0.01f) {
+        std::cout << "\nFull training mode." << "\nTraining values: \nStarting PK : " << PK << ", Starting PN : " << PN << "\nTop IG Ratio : " << SHED_RATIO << std::endl;
+        // Loop over PK values  q1
+        std::cout << "\nOptimizing PK\n" << std::endl;
+        for (float pk = pk_start; pk <= pk_end; pk += 0.005f) {
+            std::cout << "Current model value : " << PK << std::endl;
             PK = pk; // Set PK
-            Training_data* model = create_model(0, train_dir);
+            TrainingData model = create_model(0, train_dir);
             auto eval_positive = evaluate_dir_reviews(test_dir / "pos", model);
             auto eval_negative = evaluate_dir_reviews(test_dir / "neg", model);
             int correct_predictions = eval_positive.first + eval_negative.second;
             int total_predictions = eval_positive.first + eval_positive.second + eval_negative.first + eval_negative.second;
             float accuracy = static_cast<float>(correct_predictions) / static_cast<float>(total_predictions);
-
+            std::cout << "Accuracy with PK = " << PK << " : " << accuracy << std::endl;
             if (accuracy > best_accuracy) {
                 best_accuracy = accuracy;
                 best_pk = pk;
             }
-            delete model;
         }
+        PK = best_pk;
+        std::cout << "\nBest accuracy found with PK = " << PK << " : " << best_accuracy <<std::endl;
 
         // Loop over PN values using the best PK found
         best_accuracy = 0.0f;
-        for (float pn = pn_start; pn <= pn_end; pn += 0.2f) {
+        std::cout << "\nOptimizing PN\n" << std::endl;
+        for (float pn = pn_start; pn <= pn_end; pn += 0.01f) {
+            std::cout << "Current model value : " << PN << std::endl;
             PN = pn;
-            Training_data* model = create_model(0, train_dir);
+            TrainingData model = create_model(0, train_dir);
             auto eval_positive = evaluate_dir_reviews(test_dir / "pos", model);
             auto eval_negative = evaluate_dir_reviews(test_dir / "neg", model);
             int correct_predictions = eval_positive.first + eval_negative.second;
             int total_predictions = eval_positive.first + eval_positive.second + eval_negative.first + eval_negative.second;
             float accuracy = static_cast<float>(correct_predictions) / static_cast<float>(total_predictions);
+            std::cout << "Accuracy with PN = " << PN << " : " << accuracy << std::endl;
 
             if (accuracy > best_accuracy) {
                 best_accuracy = accuracy;
                 best_pn = pn;
             }
-            delete model;
         }
+        std::cout << "\nBest accuracy found with PN = " << PN << " : " << best_accuracy <<std::endl;
 
-        PK = best_pk;
         PN = best_pn;
 
-        std::cout << "Best PK: " << PK << ", Best PN: " << PN << ", with accuracy: " << best_accuracy << std::endl;
+        std::cout << "\nBest PK: " << PK << ", Best PN: " << PN << ", with accuracy: " << best_accuracy << std::endl;
 
-        // Train models with the best PK and PN and increasing amounts of data
-        for (int i = 0; i < 10; ++i) {
-            float train_amount = 0.2f + i * 0.05f;
-            STARTING_FILES = train_amount;
-            PK = best_pk;
-            PN = best_pn;
-            train_and_evaluate(train_dir, test_dir);
-        }
+
+        train_and_evaluate(train_dir, test_dir);
+        
     }
 }
 
@@ -239,16 +162,15 @@ void print_results() {
     std::ofstream test_accuracy_txt("data/test_data_accuracy.txt");
     int zilly_counter = 0;
     if (test_accuracy_txt.is_open()) {
-        test_accuracy_txt << "Test data" << std::endl;
+        test_accuracy_txt << "Test data";
     }
-
 
     for (auto& metrics : results_test) {
         if (test_accuracy_txt.is_open()) {
-            test_accuracy_txt << "Test " << zilly_counter++ << metrics.type << std::endl << " Metrics:" << std::endl
-                  << "Precision: " << metrics.precision << std::endl << ", Recall: " << metrics.recall << std::endl
-                  << ", F1: " << metrics.f1 << std::endl << ", Accuracy: " << metrics.accuracy << std::endl
-                  << ", Files: " << metrics.files << std::endl;
+            test_accuracy_txt << "\n\nTest " << zilly_counter++ <<" "<< metrics.type << std::endl << "\nMetrics:" << std::endl
+                  << "Precision: " << metrics.precision << std::endl << "Recall: " << metrics.recall << std::endl
+                  << "F1: " << metrics.f1 << std::endl << "Accuracy: " << metrics.accuracy << std::endl
+                  << "Files: " << metrics.files << std::endl << "PK = " << PK << ", PN = " << PN << ", IG ratio : " << SHED_RATIO;
         }
     }
 
@@ -260,15 +182,15 @@ void print_results() {
 
     std::ofstream training_accuracy_txt("data/training_data_accuracy.txt");
     if (training_accuracy_txt.is_open()) {
-        training_accuracy_txt << "Training data" << std::endl;
+        training_accuracy_txt << "Training data";
     }
 
     for (auto& metrics : results_train) {
         if (training_accuracy_txt.is_open()) {
-            training_accuracy_txt << "Training " << zilly_counter++ << metrics.type << std::endl << " Metrics:" << std::endl
-                << "Precision: " << metrics.precision << std::endl << ", Recall: " << metrics.recall << std::endl
-                << ", F1: " << metrics.f1 << std::endl << ", Accuracy: " << metrics.accuracy << std::endl
-                << ", Files: " << metrics.files << std::endl;
+            training_accuracy_txt << "\n\nTraining " << zilly_counter++ <<" " << metrics.type << std::endl << "\nMetrics:" << std::endl
+                << "Precision: " << metrics.precision << std::endl << "Recall: " << metrics.recall << std::endl
+                << "F1: " << metrics.f1 << std::endl <<"Accuracy: " << metrics.accuracy << std::endl
+                << "Files: " << metrics.files << std::endl << "PK = " << PK << ", PN = " << PN << ", IG ratio : " << SHED_RATIO;
         }
     }
     training_accuracy_txt.close();
@@ -280,11 +202,7 @@ void print_results() {
 }
 
 int main(int argc, char* argv[]) {
-    read_config("config.txt");
-    if (!check_variables()) {
-        std::cerr << "Variable check failed. Exiting." << std::endl;
-        return -1;
-    }
+    check_variables();
 
     fs::path train_dir, test_dir;
     if (argc > 1) {
