@@ -79,7 +79,7 @@ bool train_and_evaluate(fs::path train_dir, fs::path test_dir){
 
         Metrics positive_train_metrics = calculate_metrics(evaluation_results_train_positive.first, evaluation_results_train_positive.second, evaluation_results_train_negative.second, evaluation_results_train_negative.first, "positive", training_files);
         Metrics negative_train_metrics = calculate_metrics(evaluation_results_train_negative.second, evaluation_results_train_negative.first, evaluation_results_train_positive.first, evaluation_results_train_positive.second, "negative", training_files);
-        std::cout << "Training files used : " << training_files << "\nResults on Test files :\n" <<" Total Accuracy : " << (positive_metrics.accuracy + negative_metrics.accuracy)/2 << " , Positive accuracy : " << positive_metrics.accuracy << " , Negative accuracy : " << negative_metrics.accuracy << std::endl;
+        std::cout << "\nTraining files used : " << training_files << "\nResults on Test files :\n" <<"Total Accuracy : " << (positive_metrics.accuracy + negative_metrics.accuracy)/2 << " , Positive accuracy : " << positive_metrics.accuracy << " , Negative accuracy : " << negative_metrics.accuracy << std::endl;
         std::cout << "\nResults on Training files :\n" << "Total Accuracy : " << (positive_train_metrics.accuracy + negative_train_metrics.accuracy)/2 << " , Positive accuracy : " << positive_train_metrics.accuracy << " , Negative accuracy : " << negative_train_metrics.accuracy << std::endl;
 
         results_test.push_back(positive_metrics);
@@ -167,7 +167,7 @@ void print_results() {
 
     for (auto& metrics : results_test) {
         if (test_accuracy_txt.is_open()) {
-            test_accuracy_txt << "\n\nTest " << zilly_counter++ <<" "<< metrics.type << std::endl << "\nMetrics:" << std::endl
+            test_accuracy_txt << "\n\nTest " << zilly_counter <<" "<< metrics.type << std::endl << "\nMetrics:" << std::endl
                   << "Precision: " << metrics.precision << std::endl << "Recall: " << metrics.recall << std::endl
                   << "F1: " << metrics.f1 << std::endl << "Accuracy: " << metrics.accuracy << std::endl
                   << "Files: " << metrics.files << std::endl << "PK = " << PK << ", PN = " << PN << ", IG ratio : " << SHED_RATIO;

@@ -49,7 +49,7 @@ void TrainingData::initialize_probabilities(
     const std::map<std::string, int>& negative_word_counts
     ) {
     // Determine the maximum size for the vectors
-    m_max_vector_size = calculate_unique_keys(positive_word_counts, negative_word_counts);
+    m_max_vector_size = calculate_unique_keys(positive_word_counts, negative_word_counts)+1;
     m_positive_probability_vector.resize(m_max_vector_size, 0.0f);
     m_negative_probability_vector.resize(m_max_vector_size, 0.0f);
 

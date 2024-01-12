@@ -18,17 +18,17 @@ inline float PN_STEP = 0.5f; //Step for PN during full training
 
 // Training Parameters
 inline float STARTING_FILES = 0.05f;    // Percentage of files for the first model
-inline int MODELS_TO_BE_TRAINED = 10;     // Number of models to be trained
-inline float MODEL_FILES_INCREMENT = 0.02f; // Increment for training data in each model
+inline int MODELS_TO_BE_TRAINED = 8;     // Number of models to be trained
+inline float MODEL_FILES_INCREMENT = 0.1f; // Increment for training data in each model
 
 // Directory
 inline std::string LOAD_DIR = "data/model"; // Directory to load/save models
 
 // Maximum file processing cap during testing
-inline int FILE_CAP = 100;
+inline int FILE_CAP = 500;
 
 // Information Gain
-inline float SHED_RATIO = 0.1f; // Percentage of entries with the highest information gain to be kept
+inline float SHED_RATIO = 0.25f; // Percentage of features with the highest information gain to be kept
 
 // Minimum number of letters for word inclusion
 inline int MINIMUM_LETTERS = 3;
