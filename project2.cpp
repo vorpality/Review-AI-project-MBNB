@@ -70,10 +70,10 @@ bool train_and_evaluate(fs::path train_dir, fs::path test_dir){
         TrainingData model = create_model(i, train_dir);
 
         training_files = model.get_total_files();
-        evaluation_results_positive = evaluate_dir_reviews(positive_test, model);
-        evaluation_results_negative = evaluate_dir_reviews(negative_test, model);
-        evaluation_results_train_positive = evaluate_dir_reviews(train_dir / "pos", model);
-        evaluation_results_train_negative = evaluate_dir_reviews(train_dir / "neg", model);
+        evaluation_results_positive = evaluate_dir_reviews(model, positive_test);
+        evaluation_results_negative = evaluate_dir_reviews(model, negative_test);
+        evaluation_results_train_positive = evaluate_dir_reviews(model, "", "pos");
+        evaluation_results_train_negative = evaluate_dir_reviews(model, "", "neg");
         Metrics positive_metrics = calculate_metrics(evaluation_results_positive.first, evaluation_results_positive.second, evaluation_results_negative.second, evaluation_results_negative.first, "positive", training_files);
         Metrics negative_metrics = calculate_metrics(evaluation_results_negative.second, evaluation_results_negative.first, evaluation_results_positive.first, evaluation_results_positive.second, "negative", training_files);
 
@@ -111,8 +111,8 @@ void perform_full_training(fs::path train_dir, fs::path test_dir) {
             std::cout << "Current model value : " << PK << std::endl;
             PK = pk; // Set PK
             TrainingData model = create_model(0, train_dir);
-            auto eval_positive = evaluate_dir_reviews(test_dir / "pos", model);
-            auto eval_negative = evaluate_dir_reviews(test_dir / "neg", model);
+            auto eval_positive = evaluate_dir_reviews(model, test_dir / "pos");
+            auto eval_negative = evaluate_dir_reviews(model, test_dir / "neg");
             int correct_predictions = eval_positive.first + eval_negative.second;
             int total_predictions = eval_positive.first + eval_positive.second + eval_negative.first + eval_negative.second;
             float accuracy = static_cast<float>(correct_predictions) / static_cast<float>(total_predictions);
@@ -132,8 +132,8 @@ void perform_full_training(fs::path train_dir, fs::path test_dir) {
             std::cout << "Current model value : " << PN << std::endl;
             PN = pn;
             TrainingData model = create_model(0, train_dir);
-            auto eval_positive = evaluate_dir_reviews(test_dir / "pos", model);
-            auto eval_negative = evaluate_dir_reviews(test_dir / "neg", model);
+            auto eval_positive = evaluate_dir_reviews(model, test_dir / "pos");
+            auto eval_negative = evaluate_dir_reviews(model, test_dir / "neg");
             int correct_predictions = eval_positive.first + eval_negative.second;
             int total_predictions = eval_positive.first + eval_positive.second + eval_negative.first + eval_negative.second;
             float accuracy = static_cast<float>(correct_predictions) / static_cast<float>(total_predictions);

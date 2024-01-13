@@ -17,9 +17,9 @@ inline float PN = 1.11f;  // Skip ratio of common words
 inline float PN_STEP = 0.5f; //Step for PN during full training
 
 // Training Parameters
-inline float STARTING_FILES = 0.05f;    // Percentage of files for the first model
-inline int MODELS_TO_BE_TRAINED = 8;     // Number of models to be trained
-inline float MODEL_FILES_INCREMENT = 0.1f; // Increment for training data in each model
+inline int STARTING_FILES = 500;    // Percentage of files for the first model
+inline int MODELS_TO_BE_TRAINED = 1;     // Number of models to be trained
+inline int MODEL_FILES_INCREMENT = 500; // Increment for training data in each model
 
 // Directory
 inline std::string LOAD_DIR = "data/model"; // Directory to load/save models
@@ -53,20 +53,13 @@ inline void check_variables() {
         std::cout << "The STARTING_FILES variable should be greater than 0.\n";
         return;
     }
-    if (STARTING_FILES > 1.0f) {
-        std::cout << "The STARTING_FILES variable is greater than 1, defaulting to 1.\n";
-        STARTING_FILES = 1.0f;
-    }
-    if (MODEL_FILES_INCREMENT < 0.0f) {
-        std::cout << "The MODEL_FILES_INCREMENT variable is not greater than 0, defaulting to 0.1.\n";
-        MODEL_FILES_INCREMENT = 0.1f;
+    if (MODEL_FILES_INCREMENT < 0) {
+        std::cout << "The MODEL_FILES_INCREMENT variable is not greater than 0, defaulting to 1 model training.\n";
+        MODELS_TO_BE_TRAINED = 1;
+        MODEL_FILES_INCREMENT = 0;
     }
     if (MODELS_TO_BE_TRAINED < 0) {
         std::cout << "The MODELS_TO_BE_TRAINED variable is less than 0, defaulting to 1.\n";
         MODELS_TO_BE_TRAINED = 1;
-    }
-    if (STARTING_FILES + (MODELS_TO_BE_TRAINED * MODEL_FILES_INCREMENT) > 1.0f) {
-        std::cout << "Invalid configuration: check STARTING_FILES, MODELS_TO_BE_TRAINED, and MODEL_FILES_INCREMENT.\n";
-        std::exit(EXIT_FAILURE);
     }
 }

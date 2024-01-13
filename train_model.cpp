@@ -3,21 +3,17 @@
 //Helper functions 
 
 //creates a map[key,value] with [string:word,int count] for every file in directory_path. returns the amount of files parsed
-int create_map(std::filesystem::path directory_path, std::map<std::string, int>& word_frequency_map, float skippage) {
+std::vector<std::filesystem::path> create_map(std::filesystem::path directory_path, std::map<std::string, int>& word_frequency_map, int num_files) {
 
     std::vector<std::filesystem::path> all_files;
 
-    //rng for file-number control
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0.0, 1.0);
+
 
     for (const auto& file : std::filesystem::directory_iterator(directory_path)) {
-        if (dis(gen) < skippage) {
-            all_files.push_back(file);
-        }
+        all_files.push_back(file);
     }
-
+    std::shuffle(all_files.begin(), all_files.end(), std::default_random_engine(std::random_device{}()));
+    all_files.resize(num_files);
     //Calculate available cpu threads
 
     const int total_threads = std::thread::hardware_concurrency();
@@ -39,7 +35,7 @@ int create_map(std::filesystem::path directory_path, std::map<std::string, int>&
         }
     }
 
-    return all_files.size();
+    return all_files;
 }
 
 //function to use multithreading for faster training
@@ -61,7 +57,7 @@ void process_files(const std::vector<std::filesystem::path>& local_files, int lo
 
 
 // Function to train and return a model
-TrainingData train(std::filesystem::path dir, float skippage = 0.5f) {
+TrainingData train(std::filesystem::path dir, int num_files = 1500) {
     std::map<std::string, int> negative_word_counts;
     std::map<std::string, int> positive_word_counts;
 
@@ -70,20 +66,20 @@ TrainingData train(std::filesystem::path dir, float skippage = 0.5f) {
 
     //calculating word frequency for positive/negative files, used to calculate respective word probabilities.
 
-    int negative_file_count = create_map(negative, negative_word_counts,skippage);
-    int positive_file_count = create_map(positive, positive_word_counts,skippage);
-    float n_negative = PN * negative_file_count;
-    float n_positive = PN * positive_file_count;
-    float k_negative = PK * negative_file_count;
-    float k_positive = PK * positive_file_count;
+    std::vector<std::filesystem::path> negative_files = create_map(negative, negative_word_counts, num_files);
+    std::vector<std::filesystem::path> positive_files = create_map(positive, positive_word_counts, num_files);
+    float n_negative = PN * negative_files.size();
+    float n_positive = PN * positive_files.size();
+    float k_negative = PK * negative_files.size();
+    float k_positive = PK * positive_files.size();
     word_frequency_control(n_negative, k_negative, negative_word_counts);
     word_frequency_control(n_positive, k_positive, positive_word_counts);
    
     return TrainingData(
         positive_word_counts, 
         negative_word_counts,
-        positive_file_count, 
-        negative_file_count
+        negative_files,
+        positive_files
     );
 }
 

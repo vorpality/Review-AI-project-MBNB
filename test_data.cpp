@@ -16,16 +16,21 @@ void process_reviews(const std::vector<std::filesystem::path>& review_paths, int
     }
 }
 
-std::pair<int,int> evaluate_dir_reviews(std::filesystem::path review_directory, TrainingData& model){
+std::pair<int,int> evaluate_dir_reviews(TrainingData& model, std::filesystem::path review_directory, std::string flag) {
     std::vector<std::filesystem::path> all_review_paths;
-
-
-    for (auto const& review_path : std::filesystem::directory_iterator(review_directory)) {
-        all_review_paths.push_back(review_path);
+    if (flag == "pos") {
+        all_review_paths = model.get_positive_train_files();
     }
-    std::shuffle(all_review_paths.begin(), all_review_paths.end(), std::default_random_engine(std::random_device{}()));
-    all_review_paths.resize(FILE_CAP);
-
+    else if (flag == "neg") {
+        all_review_paths = model.get_negative_train_files();
+    }
+    else {
+        for (auto const& review_path : std::filesystem::directory_iterator(review_directory)) {
+            all_review_paths.push_back(review_path);
+        }
+        std::shuffle(all_review_paths.begin(), all_review_paths.end(), std::default_random_engine(std::random_device{}()));
+        all_review_paths.resize(FILE_CAP);
+    }
     //Calculate available cpu threads
     const int total_threads = std::thread::hardware_concurrency();
     std::vector<std::thread> threads_vector;

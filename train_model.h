@@ -15,8 +15,8 @@
 
 	// Function prototypes
 
-int create_map(std::filesystem::path directory_path, std::map<std::string, int>& word_frequency_map, float skippage);
+std::vector<std::filesystem::path> create_map(std::filesystem::path directory_path, std::map<std::string, int>& word_frequency_map, int num_files);
 
 void process_files(const std::vector<std::filesystem::path>& files, int start, int end, std::map<std::string, int>& word_frequency_map);
 
-TrainingData train(std::filesystem::path dir, float skippage);
+TrainingData train(std::filesystem::path dir, int num_files);
