@@ -179,13 +179,13 @@ void print_results() {
         test_recall_data[zilly_counter] = metrics.recall;
         test_f1_data[zilly_counter] = metrics.f1;
         if (test_accuracy_txt.is_open()) {
-            test_accuracy_txt << "\n\nTest " << zilly_counter << " " << metrics.type << std::endl << "\nMetrics:" << std::endl
+            test_accuracy_txt << "\n\nTest " << zilly_counter++ << " " << metrics.type << std::endl << "\nMetrics:" << std::endl
                 << "Precision: " << metrics.precision << std::endl << "Recall: " << metrics.recall << std::endl
                 << "F1: " << metrics.f1 << std::endl << "Accuracy: " << metrics.accuracy << std::endl
                 << "Files: " << metrics.files << std::endl << "PK = " << PK << ", PN = " << PN << ", IG ratio : " << SHED_RATIO;
         }
     }
-
+    system("python data/plotting.py");
     test_accuracy_txt.close();
     zilly_counter = 0;
 

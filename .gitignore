@@ -371,3 +371,5 @@ FodyWeavers.xsd
 /data/test_data_accuracy.txt
 /data/training_data_accuracy.txt
 /packages.config
+/data/plots
+/project2.zip
