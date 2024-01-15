@@ -366,3 +366,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/include
+/data/stopwords.txt
+/data/test_data_accuracy.txt
+/data/training_data_accuracy.txt
