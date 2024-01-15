@@ -370,3 +370,4 @@ FodyWeavers.xsd
 /data/stopwords.txt
 /data/test_data_accuracy.txt
 /data/training_data_accuracy.txt
+/packages.config
