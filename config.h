@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
 // Configuration for MBNB model training
 
@@ -14,24 +15,26 @@ inline bool LOAD_MODELS = false;
 inline float PK = 0.01f; // Skip ratio of rare words
 inline float PK_STEP = 0.02f; //Step for PK during full training
 inline float PN = 1.11f;  // Skip ratio of common words
-inline float PN_STEP = 0.5f; //Step for PN during full training
+inline float PN_STEP = 0.05f; //Step for PN during full training
 
 // Training Parameters
-inline int STARTING_FILES = 500;    // Percentage of files for the first model
-inline int MODELS_TO_BE_TRAINED = 1;     // Number of models to be trained
-inline int MODEL_FILES_INCREMENT = 500; // Increment for training data in each model
+inline int STARTING_FILES = 50;    // Percentage of files for the first model
+inline int MODELS_TO_BE_TRAINED = 5;     // Number of models to be trained
+inline int MODEL_FILES_INCREMENT = 100; // Increment for training data in each model
 
 // Directory
 inline std::string LOAD_DIR = "data/model"; // Directory to load/save models
+inline std::string STOPWORDS_TXT = "data/stopwords.txt"; // Stopwords.txt location
 
 // Maximum file processing cap during testing
-inline int FILE_CAP = 500;
+inline int FILE_CAP = 3000;
 
 // Information Gain
-inline float SHED_RATIO = 0.25f; // Percentage of features with the highest information gain to be kept
+inline float SHED_RATIO = 0.15f; // Percentage of features with the highest information gain to be kept
 
 // Minimum number of letters for word inclusion
 inline int MINIMUM_LETTERS = 3;
+
 
 
 /*
@@ -45,6 +48,11 @@ inline int MINIMUM_LETTERS = 3;
     --the second model will be trained on 14% of the given data
     --the third model will be trained on 24% of the given data, etc.
 */
+
+
+// Other variables 
+
+inline std::unordered_map<std::string, bool> STOPWORDS;
 
 inline void check_variables() {
     if (LOAD_MODELS) return;

@@ -8,7 +8,10 @@
 #include <regex>
 #include "config.h"
 
+
+
 // Function prototypes
+void load_stopwords(const std::string& filename = STOPWORDS_TXT);
 
 // Removes non-alphabetic characters and converts to lowercase
 std::string remove_debris(std::string word);

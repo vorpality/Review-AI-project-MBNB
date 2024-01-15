@@ -49,7 +49,8 @@ Metrics calculate_metrics(int tp, int fp, int tn, int fn, std::string type, int 
 
 
 TrainingData create_model(int i, fs::path path_to_file) {
-    std::cout << "\nPK = " << PK << " , PN = " << PN << "\nIG top ratio = " << SHED_RATIO << std::endl;
+    std::cout << "Training file ratio to be used : " << ((i * MODEL_FILES_INCREMENT) + STARTING_FILES)*2 <<
+        "\nPK = " << PK << " , PN = " << PN << "\nIG top ratio = " << SHED_RATIO << std::endl;
     return train(path_to_file, (i * MODEL_FILES_INCREMENT) + STARTING_FILES);
 }
 
