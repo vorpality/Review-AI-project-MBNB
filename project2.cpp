@@ -166,7 +166,7 @@ void print_results() {
     std::vector<float> test_recall_data(MODELS_TO_BE_TRAINED * 2 + 1, 0.0f);
     std::vector<float> test_f1_data(MODELS_TO_BE_TRAINED * 2 + 1, 0.0f);
     std::vector<float> test_files(MODELS_TO_BE_TRAINED * 2 + 1, 0.0f);
-    int zilly_counter = 0;
+    int zilly_counter = 1;
 
     if (test_accuracy_txt.is_open()) {
         test_accuracy_txt << "Test data";
@@ -179,15 +179,16 @@ void print_results() {
         test_recall_data[zilly_counter] = metrics.recall;
         test_f1_data[zilly_counter] = metrics.f1;
         if (test_accuracy_txt.is_open()) {
-            test_accuracy_txt << "\n\nTest " << zilly_counter++ << " " << metrics.type << std::endl << "\nMetrics:" << std::endl
+            test_accuracy_txt << "\n\nTest " << zilly_counter << " " << metrics.type << std::endl << "\nMetrics:" << std::endl
                 << "Precision: " << metrics.precision << std::endl << "Recall: " << metrics.recall << std::endl
                 << "F1: " << metrics.f1 << std::endl << "Accuracy: " << metrics.accuracy << std::endl
                 << "Files: " << metrics.files << std::endl << "PK = " << PK << ", PN = " << PN << ", IG ratio : " << SHED_RATIO;
         }
+        if (metrics.type == "negative") zilly_counter++;
     }
     system("python data/plotting.py");
     test_accuracy_txt.close();
-    zilly_counter = 0;
+    zilly_counter = 1;
 
     std::ofstream training_accuracy_txt("data/training_data_accuracy.txt");
     std::vector<float> training_accuracy_data(MODELS_TO_BE_TRAINED * 2 + 1, 0.0f);
@@ -207,11 +208,13 @@ void print_results() {
         training_f1_data[zilly_counter] = metrics.f1;
 
         if (training_accuracy_txt.is_open()) {
-            training_accuracy_txt << "\n\nTraining " << zilly_counter++ << " " << metrics.type << std::endl << "\nMetrics:" << std::endl
+            training_accuracy_txt << "\n\nTraining " << zilly_counter << " " << metrics.type << std::endl << "\nMetrics:" << std::endl
                 << "Precision: " << metrics.precision << std::endl << "Recall: " << metrics.recall << std::endl
                 << "F1: " << metrics.f1 << std::endl << "Accuracy: " << metrics.accuracy << std::endl
                 << "Files: " << metrics.files << std::endl << "PK = " << PK << ", PN = " << PN << ", IG ratio : " << SHED_RATIO;
         }
+        if (metrics.type == "negative") zilly_counter++;
+
     }
     training_accuracy_txt.close();
 
