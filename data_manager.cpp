@@ -8,6 +8,7 @@ struct Training_data;
 void save_training_data(const Training_data* data, const std::string& filename) {
     std::ofstream ofs(filename, std::ios::binary);
     if (ofs.is_open()) {
+		
         // Serialize guide
         size_t guideSize = data->word_index_guide->size();
         ofs.write(reinterpret_cast<const char*>(&guideSize), sizeof(size_t));
@@ -28,7 +29,7 @@ void save_training_data(const Training_data* data, const std::string& filename) 
 
         vectorSize = data->negative_probability_vector->size();
         ofs.write(reinterpret_cast<const char*>(&vectorSize), sizeof(size_t));
-        for (size_t i = 0; i < vectorSize; ++i) {
+        for (a i = 0; i < vectorSize; ++i) {
             float val = (*data->negative_probability_vector)[i];
             ofs.write(reinterpret_cast<const char*>(&val), sizeof(float));
         }

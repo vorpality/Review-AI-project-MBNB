@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
 // Configuration for MBNB model training
 
@@ -14,24 +15,26 @@ inline bool LOAD_MODELS = false;
 inline float PK = 0.01f; // Skip ratio of rare words
 inline float PK_STEP = 0.02f; //Step for PK during full training
 inline float PN = 1.11f;  // Skip ratio of common words
-inline float PN_STEP = 0.5f; //Step for PN during full training
+inline float PN_STEP = 0.05f; //Step for PN during full training
 
 // Training Parameters
-inline float STARTING_FILES = 0.05f;    // Percentage of files for the first model
-inline int MODELS_TO_BE_TRAINED = 8;     // Number of models to be trained
-inline float MODEL_FILES_INCREMENT = 0.1f; // Increment for training data in each model
+inline int STARTING_FILES = 50;    // Percentage of files for the first model
+inline int MODELS_TO_BE_TRAINED = 5;     // Number of models to be trained
+inline int MODEL_FILES_INCREMENT = 100; // Increment for training data in each model
 
 // Directory
 inline std::string LOAD_DIR = "data/model"; // Directory to load/save models
+inline std::string STOPWORDS_TXT = "data/stopwords.txt"; // Stopwords.txt location
 
 // Maximum file processing cap during testing
-inline int FILE_CAP = 500;
+inline int FILE_CAP = 3000;
 
 // Information Gain
-inline float SHED_RATIO = 0.25f; // Percentage of features with the highest information gain to be kept
+inline float SHED_RATIO = 0.15f; // Percentage of features with the highest information gain to be kept
 
 // Minimum number of letters for word inclusion
 inline int MINIMUM_LETTERS = 3;
+
 
 
 /*
@@ -46,6 +49,11 @@ inline int MINIMUM_LETTERS = 3;
     --the third model will be trained on 24% of the given data, etc.
 */
 
+
+// Other variables 
+
+inline std::unordered_map<std::string, bool> STOPWORDS;
+
 inline void check_variables() {
     if (LOAD_MODELS) return;
 
@@ -53,20 +61,13 @@ inline void check_variables() {
         std::cout << "The STARTING_FILES variable should be greater than 0.\n";
         return;
     }
-    if (STARTING_FILES > 1.0f) {
-        std::cout << "The STARTING_FILES variable is greater than 1, defaulting to 1.\n";
-        STARTING_FILES = 1.0f;
-    }
-    if (MODEL_FILES_INCREMENT < 0.0f) {
-        std::cout << "The MODEL_FILES_INCREMENT variable is not greater than 0, defaulting to 0.1.\n";
-        MODEL_FILES_INCREMENT = 0.1f;
+    if (MODEL_FILES_INCREMENT < 0) {
+        std::cout << "The MODEL_FILES_INCREMENT variable is not greater than 0, defaulting to 1 model training.\n";
+        MODELS_TO_BE_TRAINED = 1;
+        MODEL_FILES_INCREMENT = 0;
     }
     if (MODELS_TO_BE_TRAINED < 0) {
         std::cout << "The MODELS_TO_BE_TRAINED variable is less than 0, defaulting to 1.\n";
         MODELS_TO_BE_TRAINED = 1;
-    }
-    if (STARTING_FILES + (MODELS_TO_BE_TRAINED * MODEL_FILES_INCREMENT) > 1.0f) {
-        std::cout << "Invalid configuration: check STARTING_FILES, MODELS_TO_BE_TRAINED, and MODEL_FILES_INCREMENT.\n";
-        std::exit(EXIT_FAILURE);
     }
 }

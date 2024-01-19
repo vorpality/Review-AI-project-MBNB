@@ -12,11 +12,13 @@
 TrainingData::TrainingData( 
     const std::map<std::string, int>& positive_word_counts,
     const std::map<std::string, int>& negative_word_counts,
-    int positive_file_count, 
-    int negative_file_count
-    )
-    : m_positive_file_count(positive_file_count),
-      m_negative_file_count(negative_file_count) 
+    std::vector<std::filesystem::path> positive_files,
+    std::vector<std::filesystem::path> negative_files
+    ):     
+        m_positive_train_files(positive_files),
+        m_negative_train_files(negative_files),
+        m_positive_file_count(positive_files.size()),
+        m_negative_file_count(negative_files.size()) 
 {
     m_total = m_positive_file_count + m_negative_file_count;
 

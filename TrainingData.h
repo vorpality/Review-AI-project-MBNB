@@ -18,6 +18,8 @@ class TrainingData {
 private:
 
     int m_max_vector_size;
+    std::vector<std::filesystem::path> m_positive_train_files;
+    std::vector<std::filesystem::path> m_negative_train_files;
     std::unordered_map<std::string, int> m_word_index_guide;
     std::vector<float> m_positive_probability_vector;
     std::vector<float> m_negative_probability_vector;
@@ -50,8 +52,8 @@ public:
     TrainingData(
         const std::map<std::string, int>& positive_word_counts,
         const std::map<std::string, int>& negative_word_counts,
-        int positive_file_count, 
-        int negative_file_count
+        std::vector<std::filesystem::path> positive_files,
+        std::vector<std::filesystem::path> negative_files
     );
     ~TrainingData() = default;
 
@@ -63,7 +65,8 @@ public:
     int get_total_files() {return m_total; };
     int get_file_count_positive(){ return m_positive_file_count; };
     int get_file_count_negative(){ return m_negative_file_count; };
-
+    std::vector<std::filesystem::path>get_positive_train_files() { return m_positive_train_files; };
+    std::vector<std::filesystem::path>get_negative_train_files() { return m_negative_train_files; };
 
 
 };

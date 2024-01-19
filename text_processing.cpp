@@ -1,5 +1,21 @@
 #include "text_processing.h"
+void load_stopwords(const std::string& filename)
+{
+    std::unordered_map<std::string, bool> stopwords;
+    std::string word;
+    std::ifstream file(STOPWORDS_TXT); 
+    if (!file) {
+        std::cerr << "Error opening file: " << STOPWORDS_TXT << std::endl;
+        return;
+    }
 
+    while (file >> word) {
+        stopwords[word] = true;
+    }
+
+    STOPWORDS = stopwords;
+    return;
+}
 
 // Code to remove non-alphabetic characters and convert to lowercase
 std::string remove_debris(std::string word)
@@ -14,7 +30,10 @@ std::string remove_debris(std::string word)
 // Function to control word frequency based on PK and PN
 void word_frequency_control(int n, int k, std::map<std::string, int>& word_frequency) {
     for (auto it = word_frequency.begin(); it != word_frequency.end();) {
-        if (it->second >= n || it->second <= k) {
+        if (it->second >= n || 
+            it->second <= k ||
+            STOPWORDS.find(it->first) != STOPWORDS.end()
+            ) {
             word_frequency.erase(it++);
         }
         else {

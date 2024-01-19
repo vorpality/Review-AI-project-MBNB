@@ -366,3 +366,11 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/include
+/data/stopwords.txt
+/data/test_data_accuracy.txt
+/data/training_data_accuracy.txt
+/packages.config
+/data/plots
+/project2.zip
+/enc_temp_folder/cf259ab5a3e8cdff38b997a3cef021e3/project2.cpp
